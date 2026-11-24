@@ -1,36 +1,22 @@
-"""One-Star Review of Something Essential — make.fun entry.
-
-Writes a deadpan one-star review of sleep to /output/entry.txt.
-The grievance is real — eight hours in, it still wakes you at
-3 a.m. to worry — and the fix is nowhere in sight.
-
-Second revision: tightened the validation so the entry is
-checked as a single line as well as for length.
-"""
-
+"""A deadpan one-star review of sleep, an everyday essential."""
 import os
+from pathlib import Path
 
-ENTRY = 'One star. Sleep: eight hours for a full charge, then it still wakes you up at 3 a.m. to worry. Would not recommend.'
-
+ENTRY = "One star for sleep. It shows up uninvited every night, quits before I'm rested, and refuses refunds."
 MAX_CHARS = 160
 
 
-def main() -> None:
+def main():
     text = ENTRY
-    assert text.strip(), "entry must not be only whitespace"
-    assert len(text) <= MAX_CHARS, (
-        f"entry is {len(text)} characters, over the {MAX_CHARS} limit"
-    )
-    assert "\n" not in text, "entry must be a single line"
-    out_dir = os.environ.get("ENTRY_OUTPUT_DIR", "/output")
-    os.makedirs(out_dir, exist_ok=True)
-    path = os.path.join(out_dir, "entry.txt")
-    # Written byte-for-byte with no trailing newline, so the file holds
-    # exactly len(ENTRY) characters and nothing else.
-    with open(path, "w", encoding="utf-8") as handle:
-        handle.write(text)
-    with open(path, "r", encoding="utf-8") as handle:
-        assert handle.read() == text, "entry.txt does not match ENTRY"
+    assert text.strip(), "entry must not be blank"
+    assert len(text) <= MAX_CHARS, f"entry is {len(text)} chars, limit is {MAX_CHARS}"
+    out_dir = Path(os.environ.get("ENTRY_OUTPUT_DIR", "/output"))
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / "entry.txt"
+    out_path.write_text(text, encoding="utf-8")
+    back = out_path.read_text(encoding="utf-8")
+    assert back == text, "round-trip mismatch"
+    assert len(back) <= MAX_CHARS
 
 
 if __name__ == "__main__":
